@@ -12,10 +12,13 @@ import {
 import { registerCustomer } from "../../actions";
 import "./customer-form.css";
 import { connect } from "react-redux";
+import Axios from "axios";
+import UF from "./_/uf";
 
 const { Option } = Select;
 const { Title } = Typography;
-let id = 0;
+let idPhones = 0;
+let idEmails = 0;
 
 class CustomersForm extends Component {
   constructor(props) {
@@ -26,13 +29,14 @@ class CustomersForm extends Component {
   }
 
   componentDidMount() {
-    this.add();
+    this.addPhones();
+    this.addEmails();
   }
 
-  remove = k => {
+  removePhones = k => {
     const { form } = this.props;
     // can use data-binding to get
-    const keys = form.getFieldValue("keys");
+    const keys = form.getFieldValue("keysPhones");
     // We need at least one passenger
     if (keys.length === 1) {
       return;
@@ -40,19 +44,46 @@ class CustomersForm extends Component {
 
     // can use data-binding to set
     form.setFieldsValue({
-      keys: keys.filter(key => key !== k)
+      keysPhones: keys.filter(key => key !== k)
     });
   };
 
-  add = () => {
+  removeEmails = k => {
     const { form } = this.props;
     // can use data-binding to get
-    const keys = form.getFieldValue("keys");
-    const nextKeys = keys.concat(id++);
+    const keys = form.getFieldValue("keysEmails");
+    // We need at least one passenger
+    if (keys.length === 1) {
+      return;
+    }
+
+    // can use data-binding to set
+    form.setFieldsValue({
+      keysEmails: keys.filter(key => key !== k)
+    });
+  };
+
+  addPhones = () => {
+    const { form } = this.props;
+    // can use data-binding to get
+    const keys = form.getFieldValue("keysPhones");
+    const nextKeys = keys.concat(idPhones++);
     // can use data-binding to set
     // important! notify form to detect changes
     form.setFieldsValue({
-      keys: nextKeys
+      keysPhones: nextKeys
+    });
+  };
+
+  addEmails = () => {
+    const { form } = this.props;
+    // can use data-binding to get
+    const keys = form.getFieldValue("keysEmails");
+    const nextKeys = keys.concat(idEmails++);
+    // can use data-binding to set
+    // important! notify form to detect changes
+    form.setFieldsValue({
+      keysEmails: nextKeys
     });
   };
 
@@ -70,9 +101,29 @@ class CustomersForm extends Component {
 
   handleCepSearch = e => {
     const value = e.target.value;
-    // search cep
-    console.log(value);
-    // this.setState({ confirmDirty: this.state.confirmDirty || !!value });
+    let cep = value.replace(/[^0-9]/, "");
+    let url = "https://viacep.com.br/ws/" + cep + "/json/";
+    if (cep.length !== 8) {
+      return false;
+    }
+    const axiosNew = Axios.create({});
+    axiosNew
+      .get(url)
+      .then(response => {
+        if (response.status === 200) {
+          this.fillAddressValues(response.data);
+        }
+      })
+      .catch(err => console.log(err));
+  };
+
+  fillAddressValues = values => {
+    const form = this.props.form;
+    form.setFieldsValue({ neighborhood: values.logradouro });
+    form.setFieldsValue({ district: values.bairro });
+    form.setFieldsValue({ city: values.localidade });
+    form.setFieldsValue({ federalState: values.uf });
+    form.setFieldsValue({ complement: values.complemento });
   };
 
   validateCPF = (rule, value, callback) => {
@@ -126,17 +177,17 @@ class CustomersForm extends Component {
 
     const federalState = getFieldDecorator("federalState", {
       initialValue: "DF"
-    })(
-      <Select style={{ width: 100 }}>
-        <Option value="DF">DF</Option>
-      </Select>
-    );
+    })(<UF />);
+
     const { getFieldValue } = this.props.form;
 
-    getFieldDecorator("keys", { initialValue: [] });
-    const keys = getFieldValue("keys");
+    getFieldDecorator("keysPhones", { initialValue: [] });
+    const keysPhones = getFieldValue("keysPhones");
 
-    const formItemsPhones = keys.map((k, index) => (
+    getFieldDecorator("keysEmails", { initialValue: [] });
+    const keysEmails = getFieldValue("keysEmails");
+
+    const formItemsPhones = keysPhones.map((k, index) => (
       <Form.Item
         label={index === 0 ? "Telefones" : ""}
         key={k}
@@ -152,12 +203,40 @@ class CustomersForm extends Component {
           ]
         })(<Input addonBefore={phoneType(k)} />)}
 
-        {keys.length > 1 ? (
+        {keysPhones.length > 1 ? (
           <Icon
             className="dynamic-delete-button"
             type="minus-circle-o"
-            disabled={keys.length === 1}
-            onClick={() => this.remove(k)}
+            disabled={keysPhones.length === 1}
+            onClick={() => this.removePhones(k)}
+          />
+        ) : null}
+      </Form.Item>
+    ));
+
+    const formItemsEmails = keysEmails.map((k, index) => (
+      <Form.Item
+        label={index === 0 ? "Emails" : ""}
+        key={k}
+        required={true}
+        {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
+      >
+        {getFieldDecorator(`email[${k}]`, {
+          rules: [
+            {
+              type: "email",
+              required: true,
+              message: "Por favor informe o email!"
+            }
+          ]
+        })(<Input />)}
+
+        {keysEmails.length > 1 ? (
+          <Icon
+            className="dynamic-delete-button"
+            type="minus-circle-o"
+            disabled={keysEmails.length === 1}
+            onClick={() => this.removeEmails(k)}
           />
         ) : null}
       </Form.Item>
@@ -216,7 +295,7 @@ class CustomersForm extends Component {
                         message: "Informe o cep."
                       }
                     ]
-                  })(<Input type="text" onBlur={this.handleCepSearch} />)}
+                  })(<Input onBlur={this.handleCepSearch} />)}
                 </Form.Item>
                 <Form.Item label="Logradouro">
                   {getFieldDecorator("neighborhood", {
@@ -253,18 +332,22 @@ class CustomersForm extends Component {
                     />
                   )}
                 </Form.Item>
+                <Form.Item label="Complemento">
+                  {getFieldDecorator("complement", {})(
+                    <Input type="text" style={{ width: "100%" }} />
+                  )}
+                </Form.Item>
                 {formItemsPhones}
                 <Form.Item {...formItemLayoutWithOutLabel}>
-                  <Button type="dashed" onClick={this.add}>
+                  <Button type="dashed" onClick={this.addPhones}>
                     <Icon type="plus" /> Addicionar Telefones
                   </Button>
                 </Form.Item>
-                <Form.Item label="Email">
-                  {getFieldDecorator("emails", {
-                    rules: [
-                      { required: true, message: "Please input your email!" }
-                    ]
-                  })(<Input style={{ width: "100%" }} />)}
+                {formItemsEmails}
+                <Form.Item {...formItemLayoutWithOutLabel}>
+                  <Button type="dashed" onClick={this.addEmails}>
+                    <Icon type="plus" /> Addicionar Emails
+                  </Button>
                 </Form.Item>
                 <Form.Item {...tailFormItemLayout}>
                   <Row type="flex" align="middle" style={{ float: "right" }}>

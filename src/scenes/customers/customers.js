@@ -16,7 +16,6 @@ class Customers extends Component {
       <Layout style={{ minHeight: "80vh" }}>
         <Content style={{ padding: "0 50px", marginTop: 64 }}>
           <Row type="flex" justify="space-around" align="middle">
-            <Title> Clientes </Title>
             <div
               style={{
                 background: "#fff",
@@ -26,6 +25,7 @@ class Customers extends Component {
                 width: "120vh"
               }}
             >
+              <Title> Clientes </Title>
               <Col span={8} offset={12} />
               <div>
                 <Button

@@ -87,8 +87,12 @@ function retrieveCustomerData(data) {
       federalState: data.federalState,
       complement: data.complement
     },
-    emails: [data.emails],
-    phones: data.keys.map(i => {
+    emails: data.keysEmails.map(i => {
+      return {
+        address: data.email[i]
+      };
+    }),
+    phones: data.keysPhones.map(i => {
       return {
         number: data.phone[i],
         phoneType: data.phoneType[i]
