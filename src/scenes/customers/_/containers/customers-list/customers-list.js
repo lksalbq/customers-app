@@ -1,61 +1,131 @@
 import React, { Component } from "react";
-import { Layout, Table, Popconfirm, Icon, message } from "antd";
+import { Table, Popconfirm, Icon, List, Avatar, Row, Col, Button } from "antd";
+import { fetchCustomers, deleteCustomer } from "../../actions";
+import { connect } from "react-redux";
 
 class CustomersList extends Component {
+  constructor() {
+    super();
+
+    this.state = {
+      customersList: [],
+      isLoading: true,
+      pagination: {}
+    };
+  }
+
+  componentWillMount() {
+    this.props.fetchCustomers();
+  }
+
+  componentDidMount() {
+    if (this.props.customersList) {
+      this.setState({ customersList: this.props.customersList });
+      this.setState({ isLoading: false });
+      this.setState({ pagination: this.props.pagination });
+    }
+  }
+
   columns = [
-    { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Age", dataIndex: "age", key: "age" },
-    { title: "Address", dataIndex: "address", key: "address" },
+    { title: "Nome", dataIndex: "name", key: "name" },
+    { title: "CPF", dataIndex: "cpf", key: "cpf" },
     {
-      title: "Action",
-      dataIndex: "",
-      key: "x",
-      render: (text, record) =>
-        this.state.data.length >= 1 ? (
+      title: "Ação",
+      render: record =>
+        this.state.customersList.length >= 1 ? (
           <Popconfirm
             title="Tem certeza que deseja excluir？"
             icon={<Icon type="question-circle-o" style={{ color: "red" }} />}
-            onConfirm={() => this.deleteCustomer(record.key)}
+            onConfirm={() => this.deleteCustomer(record.id)}
           >
-            <a href="javascript:;">Excluir</a>
+            <Button type="danger" icon="delete">
+              Excluir
+            </Button>
           </Popconfirm>
         ) : null
     }
   ];
 
-  state = {
-    data: [
-      {
-        key: 1,
-        name: "John Brown",
-        age: 32,
-        address: "New York No. 1 Lake Park",
-        description:
-          "My name is John Brown, I am 32 years old, living in New York No. 1 Lake Park."
-      },
-      {
-        key: 2,
-        name: "Jim Green",
-        age: 42,
-        address: "London No. 1 Lake Park",
-        description:
-          "My name is Jim Green, I am 42 years old, living in London No. 1 Lake Park."
-      },
-      {
-        key: 3,
-        name: "Joe Black",
-        age: 32,
-        address: "Sidney No. 1 Lake Park",
-        description:
-          "My name is Joe Black, I am 32 years old, living in Sidney No. 1 Lake Park."
-      }
-    ]
+  renderAddress = address => {
+    return (
+      <List
+        itemLayout="horizontal"
+        dataSource={address}
+        renderItem={item => (
+          <List.Item>
+            <List.Item.Meta
+              avatar={
+                <Avatar icon="home" style={{ backgroundColor: "#2980b9" }} />
+              }
+              title={`${item.city} - ${item.federalState}`}
+              description={`${item.neighborhood}, ${item.district} - 
+              ${item.postalCode} - ${item.complement ? item.complement : ""}`}
+            />
+          </List.Item>
+        )}
+      />
+    );
   };
 
-  deleteCustomer = key => {
-    const data = [...this.state.data];
-    this.setState({ data: data.filter(item => item.key !== key) });
-    message.success("Usuário excluido!");
+  renderPhones = phones => {
+    return (
+      <List
+        itemLayout="horizontal"
+        dataSource={phones}
+        renderItem={phone => (
+          <List.Item>
+            <List.Item.Meta
+              avatar={
+                <Avatar icon="phone" style={{ backgroundColor: "#2980b9" }} />
+              }
+              title={phone.number}
+              description={this.renderPhoneType(phone.phoneType)}
+            />
+          </List.Item>
+        )}
+      />
+    );
+  };
+
+  renderEmails = emails => {
+    return (
+      <List
+        itemLayout="horizontal"
+        dataSource={emails}
+        renderItem={email => (
+          <List.Item>
+            <List.Item.Meta
+              avatar={
+                <Avatar icon="mail" style={{ backgroundColor: "#2980b9" }} />
+              }
+              title={email.address}
+              description={""}
+            />
+          </List.Item>
+        )}
+      />
+    );
+  };
+
+  renderPhoneType = type => {
+    switch (type) {
+      case "CELLPHONE":
+        return "Celular";
+      case "RESIDENTIAL":
+        return "Residencial";
+      case "COMMERCIAL":
+        return "Comercial";
+      default:
+        return "";
+    }
+  };
+
+  deleteCustomer = id => {
+    const customers = [...this.state.customersList];
+    this.props.deleteCustomer(id);
+    this.setState({
+      customersList: customers.filter(customer => customer.id !== id)
+    });
   };
 
   render() {
@@ -63,12 +133,39 @@ class CustomersList extends Component {
       <Table
         columns={this.columns}
         expandedRowRender={record => (
-          <p style={{ margin: 0 }}>{record.description}</p>
+          <Row style={{ margin: 0 }}>
+            <Col span={8}>
+              <p>Endereço</p>
+              {this.renderAddress([...[], record.address])}
+            </Col>
+            <Col span={8}>
+              <p>Telefones</p>
+              {this.renderPhones(record.phones)}
+            </Col>
+            <Col span={8}>
+              <p>Emails</p>
+              {this.renderEmails(record.emails)}
+            </Col>
+          </Row>
         )}
-        dataSource={this.state.data}
+        dataSource={this.state.customersList}
+        rowKey={record => record.id}
+        loading={this.state.isLoading}
+        locale={{ emptyText: "Nenhum cliente cadastrado." }}
+        pagination={this.state.pagination}
       />
     );
   }
 }
 
-export default CustomersList;
+function mapStateToProps(state) {
+  return {
+    customersList: state.customers.customersList,
+    pagination: state.customers.pagination
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  { fetchCustomers, deleteCustomer }
+)(CustomersList);

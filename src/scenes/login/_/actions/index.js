@@ -40,7 +40,7 @@ export function signIn(values, callback) {
         } else {
           ability.update([]);
           onActionToast(
-            "Erro ao realizar login. dasdada",
+            "Erro ao realizar login.",
             { position: toast.POSITION.TOP_CENTER },
             ERROR_MESSAGE
           );

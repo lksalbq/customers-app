@@ -7,9 +7,12 @@ export const setupInterceptors = () => {
       // eslint-disable-next-line
       config.headers = {
         ...config.headers,
-        "content-type": "application/vnd.api+json",
+        "content-type": "application/json",
         accessToken: localStorage.getItem("accessToken"),
-        tokenTyppe: localStorage.getItem("tokenType")
+        tokenType: localStorage.getItem("tokenType"),
+        Authorization: `${localStorage.getItem(
+          "tokenType"
+        )} ${localStorage.getItem("accessToken")}`
       };
       return config;
     },

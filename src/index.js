@@ -17,6 +17,7 @@ import requireAuth from "./auth/RequireAuth";
 import requireNotAuth from "./auth/RequireNotAuth";
 import Login from "./scenes/login";
 import Customers from "./scenes/customers";
+import CustomersForm from "./scenes/customers/_/containers/customers-form";
 
 const persistConfig = {
   key: "rootPersist",
@@ -40,6 +41,11 @@ const Root = () => (
             exact={true}
             path="/customers"
             component={requireAuth(Customers)}
+          />
+          <Route
+            exact={true}
+            path="/customers/register"
+            component={requireAuth(CustomersForm)}
           />
         </Switch>
       </LayoutApp>

@@ -26,8 +26,8 @@ class LayoutApp extends Component {
         <Header>
           {" "}
           {this.props.authenticated && (
-            <Row type="flex" justify="space-around" align="middle">
-              <Col span={6} offset={6}>
+            <Row type="flex" justify="end">
+              <Col style={{ alignItems: "end" }}>
                 <Avatar size={35} icon="user" />
 
                 <Dropdown overlay={this.menu}>
@@ -41,7 +41,6 @@ class LayoutApp extends Component {
           )}
         </Header>
         <Content>
-          {" "}
           <ToastContainer transition={Slide} />
           {this.props.children}
         </Content>
