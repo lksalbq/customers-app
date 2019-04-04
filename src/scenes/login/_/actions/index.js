@@ -97,20 +97,13 @@ export function verifyToken(callback) {
  */
 export function signoutUser(callback) {
   return function(dispatch) {
-    axios
-      .delete(`${authUrl}/sign_out`)
-      .then(response => {
-        localStorage.clear("access-token");
-        localStorage.clear("client");
-        localStorage.clear("uid");
-        localStorage.clear("persist:rootPersist");
-        ability.update([]);
-        dispatch({ type: UNAUTH_USER, payload: response.data });
-        onActionToast("Usuário deslogado com sucesso", {}, SUCCESS_MESSAGE);
-        callback();
-      })
-      .catch(error => {
-        console.log(error);
-      });
+    localStorage.clear("accessToken");
+    localStorage.clear("tokenType");
+    ability.update([]);
+    dispatch({ type: UNAUTH_USER });
+    if (callback) {
+      callback();
+      onActionToast("Usuário deslogado com sucesso", {}, SUCCESS_MESSAGE);
+    }
   };
 }

@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import { verifyToken } from "../scenes/login/_/actions";
-import { Spin, Alert } from "antd";
+import { verifyToken, signoutUser } from "../scenes/login/_/actions";
+import { Spin } from "antd";
 
 export default function(ComposedComponent) {
   class NotAuthentication extends Component {
@@ -20,6 +20,8 @@ export default function(ComposedComponent) {
         if (this.state.is_authenticated !== false) {
           this.setState({ is_authenticated: false });
         }
+
+        this.props.signoutUser(null);
       } else {
         this.props.verifyToken(() => {
           if (this.props.authenticated) {
@@ -33,7 +35,7 @@ export default function(ComposedComponent) {
     }
 
     render() {
-      if (!this.props.authenticated) {
+      if (this.props.authenticated === undefined) {
         return (
           <div className="spin">
             <Spin tip="Carregando..." />;
@@ -54,6 +56,6 @@ export default function(ComposedComponent) {
 
   return connect(
     mapStateToProps,
-    { verifyToken }
+    { verifyToken, signoutUser }
   )(NotAuthentication);
 }
