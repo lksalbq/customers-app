@@ -78,9 +78,12 @@ export function registerCustomer(data, callback) {
 function retrieveCustomerData(data) {
   return {
     name: data.name,
-    cpf: data.cpf,
+    cpf: data.cpf
+      .replace(/[^0-9]/, "")
+      .replace(".", "")
+      .replace("-", ""),
     address: {
-      postalCode: data.postalCode,
+      postalCode: data.postalCode.replace(/[^0-9]/, "").replace("-", ""),
       district: data.district,
       neighborhood: data.neighborhood,
       city: data.city,
@@ -94,7 +97,7 @@ function retrieveCustomerData(data) {
     }),
     phones: data.keysPhones.map(i => {
       return {
-        number: data.phone[i],
+        number: data.phone[i].replace(/[^0-9]/, "").replace("-", ""),
         phoneType: data.phoneType[i]
       };
     })

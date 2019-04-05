@@ -1,11 +1,11 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import { Select } from "antd";
 
 const { Option } = Select;
 
-const UF = () => {
+const UF = forwardRef((props, ref) => {
   return (
-    <Select style={{ width: 100 }}>
+    <Select style={{ width: 100 }} ref={ref}>
       <Option value="AC">AC</Option>
       <Option value="AL">AL</Option>
       <Option value="AP">AP</Option>
@@ -35,6 +35,6 @@ const UF = () => {
       <Option value="TO">TO</Option>
     </Select>
   );
-};
+});
 
 export default UF;

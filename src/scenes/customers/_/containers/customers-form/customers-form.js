@@ -14,6 +14,7 @@ import "./customer-form.css";
 import { connect } from "react-redux";
 import Axios from "axios";
 import UF from "./_/uf";
+import InputMask from "./_/inputMask";
 
 const { Option } = Select;
 const { Title } = Typography;
@@ -41,7 +42,7 @@ class CustomersForm extends Component {
     if (keys.length === 1) {
       return;
     }
-
+    this.setState({ phonesMask: keys.filter(key => key !== k) });
     // can use data-binding to set
     form.setFieldsValue({
       keysPhones: keys.filter(key => key !== k)
@@ -70,6 +71,7 @@ class CustomersForm extends Component {
     const nextKeys = keys.concat(idPhones++);
     // can use data-binding to set
     // important! notify form to detect changes
+    this.setState({ phonesMask: nextKeys });
     form.setFieldsValue({
       keysPhones: nextKeys
     });
@@ -99,9 +101,9 @@ class CustomersForm extends Component {
     });
   };
 
-  handleCepSearch = e => {
-    const value = e.target.value;
-    let cep = value.replace(/[^0-9]/, "");
+  handleCepSearch = () => {
+    const value = this.props.form.getFieldValue("postalCode");
+    let cep = value.replace(/[^0-9]/, "").replace("-", "");
     let url = "https://viacep.com.br/ws/" + cep + "/json/";
     if (cep.length !== 8) {
       return false;
@@ -201,7 +203,16 @@ class CustomersForm extends Component {
               message: "Por favor, informe pelo menos um telefone!"
             }
           ]
-        })(<Input addonBefore={phoneType(k)} />)}
+        })(
+          <InputMask
+            mask={
+              getFieldValue(`phoneType[${k}]`) !== "CELLPHONE"
+                ? "(99)9999-9999"
+                : "(99)99999-9999"
+            }
+            addonBefore={phoneType(k)}
+          />
+        )}
 
         {keysPhones.length > 1 ? (
           <Icon
@@ -243,7 +254,6 @@ class CustomersForm extends Component {
     ));
 
     const { Content } = Layout;
-
     return (
       <Layout style={{ minHeight: "80vh" }}>
         <Content style={{ padding: "0 50px", marginTop: 64 }}>
@@ -264,8 +274,9 @@ class CustomersForm extends Component {
                       {
                         max: 100,
                         min: 3,
+                        pattern: new RegExp("^[a-z0-9\\s+]+$", "i"),
                         message:
-                          "Nome inválido: minimo 3 caráteres e máximo 100"
+                          "Nome inválido: minimo 3 caráteres e máximo 100. Somente letras e numeros."
                       },
                       {
                         required: true,
@@ -285,7 +296,7 @@ class CustomersForm extends Component {
                         validator: this.validateCPF
                       }
                     ]
-                  })(<Input type="text" />)}
+                  })(<InputMask mask="999.999.999-99" className="ant-input" />)}
                 </Form.Item>
                 <Form.Item label="CEP">
                   {getFieldDecorator("postalCode", {
@@ -295,7 +306,13 @@ class CustomersForm extends Component {
                         message: "Informe o cep."
                       }
                     ]
-                  })(<Input onBlur={this.handleCepSearch} />)}
+                  })(
+                    <InputMask
+                      mask="99.999-999"
+                      onBlur={() => this.handleCepSearch()}
+                      className="ant-input"
+                    />
+                  )}
                 </Form.Item>
                 <Form.Item label="Logradouro">
                   {getFieldDecorator("neighborhood", {
