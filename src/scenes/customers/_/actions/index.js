@@ -10,7 +10,9 @@ import {
   DELETE_CUSTOMER_FAILURE,
   CUSTOMER_CREATED,
   LOAD_CUSTOMER,
-  LOAD_ERROR
+  LOAD_ERROR,
+  CUSTOMER_UPDATED,
+  EDIT_CUSTOMER_FAILURE
 } from "./types";
 import axios from "axios";
 import { onActionToast } from "../../../../components/message_toast";
@@ -94,6 +96,35 @@ export function registerCustomer(data, callback) {
   };
 }
 
+export function editCustomer(data, id, callback) {
+  return function(dispatch) {
+    axios
+      .put(`${customersUrl}/${id}`, retrieveCustomerData(data))
+      .then(response => {
+        dispatch({ type: CUSTOMER_UPDATED, payload: response });
+        onActionToast("Cliente editado com sucesso.", {}, SUCCESS_MESSAGE);
+        callback();
+      })
+      .catch(error => {
+        if (error.response.data.status === 403) {
+          onActionToast(
+            "Você não tem permissão para realizar essa ação",
+            { position: toast.POSITION.TOP_CENTER },
+            ERROR_MESSAGE
+          );
+          dispatch(authError(EDIT_CUSTOMER_FAILURE, "Erro ao editar cliente."));
+        } else {
+          onActionToast(
+            error.message,
+            { position: toast.POSITION.TOP_CENTER },
+            ERROR_MESSAGE
+          );
+          dispatch(authError(EDIT_CUSTOMER_FAILURE, "Erro ao editar cliente."));
+        }
+      });
+  };
+}
+
 function retrieveCustomerData(data) {
   return {
     name: data.name,
@@ -116,7 +147,11 @@ function retrieveCustomerData(data) {
     }),
     phones: data.keysPhones.map(i => {
       return {
-        number: data.phone[i].replace(/[^0-9]/, "").replace("-", ""),
+        number: data.phone[i]
+          .replace(/[^0-9]/, "")
+          .replace("(", "")
+          .replace(")", "")
+          .replace("-", ""),
         phoneType: data.phoneType[i]
       };
     })

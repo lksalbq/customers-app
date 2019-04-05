@@ -9,7 +9,7 @@ import {
   Layout,
   Typography
 } from "antd";
-import { registerCustomer } from "../../actions";
+import { registerCustomer, editCustomer } from "../../actions";
 import "./customer-form.css";
 import { connect } from "react-redux";
 import Axios from "axios";
@@ -31,7 +31,6 @@ class CustomersForm extends Component {
 
   componentDidMount() {
     if (this.props.customerEdit) {
-      console.log(this.props.customerEdit);
       this.initializeEditMode(this.props.customerEdit);
     } else {
       this.addPhones();
@@ -41,7 +40,7 @@ class CustomersForm extends Component {
 
   initializeEditMode(customer) {
     const form = this.props.form;
-
+    const { getFieldDecorator } = form;
     form.setFieldsValue({ name: customer.name });
     form.setFieldsValue({ cpf: customer.cpf });
     form.setFieldsValue({ postalCode: customer.address.postalCode });
@@ -52,12 +51,24 @@ class CustomersForm extends Component {
     form.setFieldsValue({ federalState: customer.address.federalState });
     form.setFieldsValue({ complement: customer.address.complement });
 
+    console.log(customer);
+
     customer.phones.forEach((phone, k) => {
       this.addPhones();
+      getFieldDecorator(`phone[${k}]`, {
+        initialValue: phone.number
+      });
+
+      getFieldDecorator(`phoneType[${k}]`, {
+        initialValue: phone.phoneType
+      });
     });
 
-    customer.emails.forEach(email => {
+    customer.emails.forEach((email, k) => {
       this.addEmails();
+      getFieldDecorator(`email[${k}]`, {
+        initialValue: email.address
+      });
     });
   }
 
@@ -120,10 +131,16 @@ class CustomersForm extends Component {
     e.preventDefault();
     this.props.form.validateFieldsAndScroll((err, values) => {
       if (!err) {
-        console.log("Received values of form: ", values);
-        this.props.registerCustomer(values, () => {
-          this.props.history.push("/customers");
-        });
+        if (this.props.typeMode === "edit") {
+          const { id } = this.props.customerEdit;
+          this.props.editCustomer(values, id, () => {
+            this.props.history.push("/customers");
+          });
+        } else {
+          this.props.registerCustomer(values, () => {
+            this.props.history.push("/customers");
+          });
+        }
       }
     });
   };
@@ -407,7 +424,7 @@ class CustomersForm extends Component {
                       Voltar
                     </Button>
                     <Button type="primary" htmlType="submit">
-                      Cadastrar
+                      {typeMode === "edit" ? "Editar" : "Cadastrar"}
                     </Button>
                   </Row>
                 </Form.Item>
@@ -422,5 +439,5 @@ class CustomersForm extends Component {
 
 export default connect(
   null,
-  { registerCustomer }
+  { registerCustomer, editCustomer }
 )(Form.create({ name: "register" })(CustomersForm));
