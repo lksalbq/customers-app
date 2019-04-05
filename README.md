@@ -1,7 +1,7 @@
 # Cusomter APP - REACT
 
-- Simples customer register in REACT
-- [https://github.com/lksalbq/customers-api](Service API)
+- Simple customer CRUD in REACT
+- [Service API](https://github.com/lksalbq/customers-api/)
 
 ## Contants
 
