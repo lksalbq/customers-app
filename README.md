@@ -7,13 +7,12 @@
 
 - Verify if in constants the Customer Service API is the same port on localhost
 
-## Taks
+## Tasks
 
 ### use yarn
 
 - yarn install
-
-### `yarn start`
+- To run: `yarn start`
 
 Runs the app in the development mode.<br>
 Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
