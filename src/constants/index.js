@@ -7,6 +7,7 @@ if (process.env.NODE_ENV === "development") {
   //PRODUCTION ****
   //***** */
   //API
+  url = "https://customer-api-mrnt.herokuapp.com";
 }
 
 export const authUrl = `${url}/api/auth`;
