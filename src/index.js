@@ -23,7 +23,7 @@ import CustomersEdit from "./scenes/customers/_/containers/customers-edit/custom
 const persistConfig = {
   key: "rootPersist",
   storage,
-  blacklist: ["auth"]
+  blacklist: ["auth", "customers"]
 };
 
 // const createStoreWithMiddleware = applyMiddleware(thunk)(createStore);

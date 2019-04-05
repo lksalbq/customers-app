@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-
+import { fetchCustomers } from "./_/actions";
 import CustomersList from "./_/containers/customers-list/customers-list";
 import { Layout, Row, Button, Col, Typography } from "antd";
+import { connect } from "react-redux";
 
 const { Title } = Typography;
 
@@ -9,6 +10,10 @@ class Customers extends Component {
   goToRegister = () => {
     this.props.history.push("/customers/register");
   };
+
+  componentWillMount() {
+    this.props.fetchCustomers();
+  }
 
   render() {
     const { Content } = Layout;
@@ -21,7 +26,6 @@ class Customers extends Component {
                 background: "#fff",
                 padding: 24,
                 borderRadius: "25px",
-                height: "60vh",
                 width: "120vh"
               }}
             >
@@ -37,7 +41,12 @@ class Customers extends Component {
                 </Button>
               </div>
               <Col>
-                <CustomersList />
+                {this.props.customersList && (
+                  <CustomersList
+                    customersList={this.props.customersList}
+                    pagination={this.props.pagination}
+                  />
+                )}
               </Col>
             </div>
           </Row>
@@ -47,4 +56,14 @@ class Customers extends Component {
   }
 }
 
-export default Customers;
+function mapStateToProps(state) {
+  return {
+    customersList: state.customers.customersList,
+    pagination: state.customers.pagination
+  };
+}
+
+export default connect(
+  mapStateToProps,
+  { fetchCustomers }
+)(Customers);

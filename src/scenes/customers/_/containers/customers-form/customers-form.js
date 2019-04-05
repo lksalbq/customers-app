@@ -30,8 +30,9 @@ class CustomersForm extends Component {
   }
 
   componentDidMount() {
-    if (this.props.customer) {
-      this.initializeEditMode(this.props.customer);
+    if (this.props.customerEdit) {
+      console.log(this.props.customerEdit);
+      this.initializeEditMode(this.props.customerEdit);
     } else {
       this.addPhones();
       this.addEmails();
@@ -40,8 +41,7 @@ class CustomersForm extends Component {
 
   initializeEditMode(customer) {
     const form = this.props.form;
-    const { getFieldDecorator, getFieldValue } = form;
-    console.log(customer);
+
     form.setFieldsValue({ name: customer.name });
     form.setFieldsValue({ cpf: customer.cpf });
     form.setFieldsValue({ postalCode: customer.address.postalCode });
@@ -54,7 +54,6 @@ class CustomersForm extends Component {
 
     customer.phones.forEach((phone, k) => {
       this.addPhones();
-      console.log(getFieldDecorator("keysPhones"));
     });
 
     customer.emails.forEach(email => {
@@ -421,10 +420,7 @@ class CustomersForm extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  return { customer: state.customers.customer };
-}
 export default connect(
-  mapStateToProps,
+  null,
   { registerCustomer }
 )(Form.create({ name: "register" })(CustomersForm));

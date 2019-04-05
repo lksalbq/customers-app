@@ -64,7 +64,6 @@ export function verifyToken(callback) {
         .post(`${authUrl}/validate_token`, { token: token })
         .then(response => {
           dispatch({ type: AUTH_USER });
-          console.log(response);
           callback();
         })
         .catch(error => {

@@ -2,26 +2,34 @@ import React, { Component } from "react";
 import CustomersForm from "../customers-form";
 import { connect } from "react-redux";
 import { loadCustomer } from "../../actions";
-
+import { withRouter } from "react-router-dom";
 class CustomersEdit extends Component {
   state = {
-    customer: {}
+    customer: null
   };
   componentWillMount() {
     const { id } = this.props.match.params;
     this.props.loadCustomer(id);
   }
 
-  componentDidMount() {
-    if (this.props.customer) {
-      this.setState({ customer: this.props.customer });
+  componentWillReceiveProps(props) {
+    const { id } = this.props.match.params;
+    if (Number(id) === Number(props.customer.id)) {
+      this.setState({ customer: props.customer });
     }
   }
 
   render() {
+    const { customer } = this.state;
     return (
       <div>
-        <CustomersForm customer={this.state.customer} typeMode="edit" />
+        {customer && (
+          <CustomersForm
+            customerEdit={customer}
+            typeMode="edit"
+            history={this.props.history}
+          />
+        )}
       </div>
     );
   }
@@ -34,4 +42,4 @@ function mapStateToProps(state) {
 export default connect(
   mapStateToProps,
   { loadCustomer }
-)(CustomersEdit);
+)(withRouter(CustomersEdit));

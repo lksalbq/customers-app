@@ -15,10 +15,6 @@ class CustomersList extends Component {
     };
   }
 
-  componentWillMount() {
-    this.props.fetchCustomers();
-  }
-
   componentDidMount() {
     if (this.props.customersList) {
       this.setState({ customersList: this.props.customersList });
@@ -172,14 +168,7 @@ class CustomersList extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {
-    customersList: state.customers.customersList,
-    pagination: state.customers.pagination
-  };
-}
-
 export default connect(
-  mapStateToProps,
+  null,
   { fetchCustomers, deleteCustomer }
 )(withRouter(CustomersList));
