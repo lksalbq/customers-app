@@ -30,8 +30,36 @@ class CustomersForm extends Component {
   }
 
   componentDidMount() {
-    this.addPhones();
-    this.addEmails();
+    if (this.props.customer) {
+      this.initializeEditMode(this.props.customer);
+    } else {
+      this.addPhones();
+      this.addEmails();
+    }
+  }
+
+  initializeEditMode(customer) {
+    const form = this.props.form;
+    const { getFieldDecorator, getFieldValue } = form;
+    console.log(customer);
+    form.setFieldsValue({ name: customer.name });
+    form.setFieldsValue({ cpf: customer.cpf });
+    form.setFieldsValue({ postalCode: customer.address.postalCode });
+    form.setFieldsValue({ city: customer.address.city });
+    form.setFieldsValue({ neighborhood: customer.address.neighborhood });
+    form.setFieldsValue({ district: customer.address.district });
+    form.setFieldsValue({ city: customer.address.city });
+    form.setFieldsValue({ federalState: customer.address.federalState });
+    form.setFieldsValue({ complement: customer.address.complement });
+
+    customer.phones.forEach((phone, k) => {
+      this.addPhones();
+      console.log(getFieldDecorator("keysPhones"));
+    });
+
+    customer.emails.forEach(email => {
+      this.addEmails();
+    });
   }
 
   removePhones = k => {
@@ -254,6 +282,7 @@ class CustomersForm extends Component {
     ));
 
     const { Content } = Layout;
+    const { typeMode } = this.props;
     return (
       <Layout style={{ minHeight: "80vh" }}>
         <Content style={{ padding: "0 50px", marginTop: 64 }}>
@@ -266,7 +295,11 @@ class CustomersForm extends Component {
                 width: "120vh"
               }}
             >
-              <Title> Cadastro de Clientes </Title>
+              <Title>
+                {typeMode === "edit"
+                  ? "Editar Cliente"
+                  : "Cadastro de Clientes"}{" "}
+              </Title>
               <Form {...formItemLayout} onSubmit={this.handleSubmit}>
                 <Form.Item label="Nome">
                   {getFieldDecorator("name", {
@@ -388,7 +421,10 @@ class CustomersForm extends Component {
   }
 }
 
+function mapStateToProps(state) {
+  return { customer: state.customers.customer };
+}
 export default connect(
-  null,
+  mapStateToProps,
   { registerCustomer }
 )(Form.create({ name: "register" })(CustomersForm));

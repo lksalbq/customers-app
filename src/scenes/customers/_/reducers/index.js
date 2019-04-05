@@ -1,4 +1,8 @@
-import { FETCH_CUSTOMERS, CUSTOMER_CREATED } from "../actions/types";
+import {
+  FETCH_CUSTOMERS,
+  CUSTOMER_CREATED,
+  LOAD_CUSTOMER
+} from "../actions/types";
 
 export default function(state = {}, action) {
   switch (action.type) {
@@ -18,6 +22,8 @@ export default function(state = {}, action) {
       const customer = action.payload;
       const customersList = [...state.customersList, customer];
       return { ...state, customersList: customersList };
+    case LOAD_CUSTOMER:
+      return { ...state, customer: action.payload.data };
     default:
       return state;
   }

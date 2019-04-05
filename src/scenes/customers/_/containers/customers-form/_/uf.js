@@ -5,7 +5,7 @@ const { Option } = Select;
 
 const UF = forwardRef((props, ref) => {
   return (
-    <Select style={{ width: 100 }} ref={ref}>
+    <Select style={{ width: 100 }} ref={ref} value={props.value}>
       <Option value="AC">AC</Option>
       <Option value="AL">AL</Option>
       <Option value="AP">AP</Option>

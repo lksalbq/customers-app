@@ -8,7 +8,9 @@ import {
   FETCH_CUSTOMERS,
   CUSTOMER_DELETED,
   DELETE_CUSTOMER_FAILURE,
-  CUSTOMER_CREATED
+  CUSTOMER_CREATED,
+  LOAD_CUSTOMER,
+  LOAD_ERROR
 } from "./types";
 import axios from "axios";
 import { onActionToast } from "../../../../components/message_toast";
@@ -39,11 +41,19 @@ export function deleteCustomer(id) {
         onActionToast("Cliente excluido com sucesso.", {}, SUCCESS_MESSAGE);
       })
       .catch(error => {
-        onActionToast(
-          error.message,
-          { position: toast.POSITION.TOP_CENTER },
-          ERROR_MESSAGE
-        );
+        if (error.response.data.status === 403) {
+          onActionToast(
+            "Você não tem permissão para realizar essa ação",
+            { position: toast.POSITION.TOP_CENTER },
+            ERROR_MESSAGE
+          );
+        } else {
+          onActionToast(
+            error.message,
+            { position: toast.POSITION.TOP_CENTER },
+            ERROR_MESSAGE
+          );
+        }
         dispatch(
           authError(DELETE_CUSTOMER_FAILURE, "Erro ao deletar cliente.")
         );
@@ -52,8 +62,6 @@ export function deleteCustomer(id) {
 }
 
 export function registerCustomer(data, callback) {
-  console.log(data);
-
   return function(dispatch) {
     axios
       .post(`${customersUrl}`, retrieveCustomerData(data))
@@ -63,14 +71,25 @@ export function registerCustomer(data, callback) {
         callback();
       })
       .catch(error => {
-        onActionToast(
-          error.message,
-          { position: toast.POSITION.TOP_CENTER },
-          ERROR_MESSAGE
-        );
-        dispatch(
-          authError(DELETE_CUSTOMER_FAILURE, "Erro ao cadastrar cliente.")
-        );
+        if (error.response.data.status === 403) {
+          onActionToast(
+            "Você não tem permissão para realizar essa ação",
+            { position: toast.POSITION.TOP_CENTER },
+            ERROR_MESSAGE
+          );
+          dispatch(
+            authError(DELETE_CUSTOMER_FAILURE, "Erro ao cadastrar cliente.")
+          );
+        } else {
+          onActionToast(
+            error.message,
+            { position: toast.POSITION.TOP_CENTER },
+            ERROR_MESSAGE
+          );
+          dispatch(
+            authError(DELETE_CUSTOMER_FAILURE, "Erro ao cadastrar cliente.")
+          );
+        }
       });
   };
 }
@@ -101,6 +120,19 @@ function retrieveCustomerData(data) {
         phoneType: data.phoneType[i]
       };
     })
+  };
+}
+
+export function loadCustomer(id) {
+  return function(dispatch) {
+    axios
+      .get(`${customersUrl}/${id}`)
+      .then(response => {
+        dispatch({ type: LOAD_CUSTOMER, payload: response });
+      })
+      .catch(error => {
+        dispatch(authError(LOAD_ERROR));
+      });
   };
 }
 

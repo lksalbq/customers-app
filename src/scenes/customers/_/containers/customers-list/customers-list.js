@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Table, Popconfirm, Icon, List, Avatar, Row, Col, Button } from "antd";
 import { fetchCustomers, deleteCustomer } from "../../actions";
 import { connect } from "react-redux";
+import { withRouter } from "react-router-dom";
 
 class CustomersList extends Component {
   constructor() {
@@ -26,6 +27,10 @@ class CustomersList extends Component {
     }
   }
 
+  loadClient = id => {
+    this.props.history.push(`/customers/${id}/edit`);
+  };
+
   columns = [
     { title: "Nome", dataIndex: "name", key: "name" },
     { title: "CPF", dataIndex: "cpf", key: "cpf" },
@@ -33,15 +38,24 @@ class CustomersList extends Component {
       title: "Ação",
       render: record =>
         this.state.customersList.length >= 1 ? (
-          <Popconfirm
-            title="Tem certeza que deseja excluir？"
-            icon={<Icon type="question-circle-o" style={{ color: "red" }} />}
-            onConfirm={() => this.deleteCustomer(record.id)}
-          >
-            <Button type="danger" icon="delete">
-              Excluir
+          <div>
+            <Button
+              type="default"
+              icon="edit"
+              onClick={() => this.loadClient(record.id)}
+            >
+              Editar
             </Button>
-          </Popconfirm>
+            <Popconfirm
+              title="Tem certeza que deseja excluir？"
+              icon={<Icon type="question-circle-o" style={{ color: "red" }} />}
+              onConfirm={() => this.deleteCustomer(record.id)}
+            >
+              <Button type="danger" icon="delete">
+                Excluir
+              </Button>
+            </Popconfirm>
+          </div>
         ) : null
     }
   ];
@@ -168,4 +182,4 @@ function mapStateToProps(state) {
 export default connect(
   mapStateToProps,
   { fetchCustomers, deleteCustomer }
-)(CustomersList);
+)(withRouter(CustomersList));
