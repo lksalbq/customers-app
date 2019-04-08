@@ -9,6 +9,7 @@ export default function(state = {}, action) {
     case FETCH_CUSTOMERS:
       const customers = action.payload.content;
       const { totalElements } = action.payload;
+      console.log(action.payload);
       return {
         ...state,
         customersList: customers,

@@ -51,8 +51,6 @@ class CustomersForm extends Component {
     form.setFieldsValue({ federalState: customer.address.federalState });
     form.setFieldsValue({ complement: customer.address.complement });
 
-    console.log(customer);
-
     customer.phones.forEach((phone, k) => {
       this.addPhones();
       getFieldDecorator(`phone[${k}]`, {

@@ -5,7 +5,7 @@
 
 ## Contants
 
-- Verify if in constants the Customer Service API is in the same port on localhost
+- Verify if in constants.js the Customer Service API is in the same port on localhost
 
 ## Tasks
 

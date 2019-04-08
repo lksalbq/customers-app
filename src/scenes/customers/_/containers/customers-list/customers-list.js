@@ -11,13 +11,13 @@ class CustomersList extends Component {
     this.state = {
       customersList: [],
       isLoading: true,
-      pagination: {}
+      pagination: {},
+      current: 0
     };
   }
 
   componentDidMount() {
     if (this.props.customersList) {
-      this.setState({ customersList: this.props.customersList });
       this.setState({ isLoading: false });
       this.setState({ pagination: this.props.pagination });
     }
@@ -27,13 +27,18 @@ class CustomersList extends Component {
     this.props.history.push(`/customers/${id}/edit`);
   };
 
+  fetchNextCustomersPage = pageNumber => {
+    this.props.fetchCustomers(pageNumber);
+    this.setState({ current: pageNumber });
+  };
+
   columns = [
     { title: "Nome", dataIndex: "name", key: "name" },
     { title: "CPF", dataIndex: "cpf", key: "cpf" },
     {
       title: "Ação",
       render: record =>
-        this.state.customersList.length >= 1 ? (
+        this.props.customersList.length >= 1 ? (
           <div>
             <Button
               type="default"
@@ -158,11 +163,13 @@ class CustomersList extends Component {
             </Col>
           </Row>
         )}
-        dataSource={this.state.customersList}
+        dataSource={this.props.customersList}
         rowKey={record => record.id}
         loading={this.state.isLoading}
         locale={{ emptyText: "Nenhum cliente cadastrado." }}
         pagination={this.state.pagination}
+        current={this.state.current}
+        onChange={e => this.fetchNextCustomersPage(e.current - 1)}
       />
     );
   }

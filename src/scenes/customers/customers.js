@@ -7,12 +7,27 @@ import { connect } from "react-redux";
 const { Title } = Typography;
 
 class Customers extends Component {
+  constructor() {
+    super();
+    this.state = {
+      customersList: [],
+      pagination: {}
+    };
+  }
+
   goToRegister = () => {
     this.props.history.push("/customers/register");
   };
 
-  componentWillMount() {
-    this.props.fetchCustomers();
+  componentDidMount() {
+    this.props.fetchCustomers(0);
+  }
+
+  componentWillReceiveProps(props) {
+    this.setState({
+      customersList: props.customersList,
+      pagination: props.pagination
+    });
   }
 
   render() {
@@ -41,10 +56,10 @@ class Customers extends Component {
                 </Button>
               </div>
               <Col>
-                {this.props.customersList && (
+                {this.state.customersList.length > 0 && (
                   <CustomersList
-                    customersList={this.props.customersList}
-                    pagination={this.props.pagination}
+                    customersList={this.state.customersList}
+                    pagination={this.state.pagination}
                   />
                 )}
               </Col>

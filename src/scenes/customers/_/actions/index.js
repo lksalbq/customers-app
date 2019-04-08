@@ -21,10 +21,10 @@ import { setupInterceptors } from "../../../../auth/SetupInterceptors";
 
 setupInterceptors();
 
-export function fetchCustomers() {
+export function fetchCustomers(page) {
   return function(dispatch) {
     axios
-      .get(`${customersUrl}`)
+      .get(`${customersUrl}?page=${page}`)
       .then(response => {
         dispatch({ type: FETCH_CUSTOMERS, payload: response.data });
       })
